@@ -5,25 +5,55 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Set;
+import java.util.Map;
 
 @RestController
-@RequestMapping(path = "/departments")
+@RequestMapping("/person")
 public class EmploeeController {
-    EmploeeService serv = new EmploeeServiceImpl();
+    EmploeeServiceImpl serv = new EmploeeServiceImpl();
 
-    @GetMapping(path = "/departments/max-salary")
-    public Emploee maxSalary(@RequestParam("departmentId") Integer depId) {
-        return serv.maxSalary(depId);
+    {
+        serv.emploeesAbOvo();
     }
 
-    @GetMapping(path = "/departments/min-salary")
-    public Emploee minSalary(@RequestParam("departmentId") Integer depId) {
-        return serv.minSalary(depId);
+    @GetMapping("/add")
+    public String addPerson(@RequestParam("firstName") String firstName,
+                            @RequestParam("lastName") String lastName) {
+        try {
+            return serv.addEmploee(firstName, lastName);
+        } catch (EmployeeAlreadyAddedException e) {
+            return "Такой сотрудник уже существует.";
+        } catch (EmployeeStorageIsFullException e) {
+            return "Нельзя добавить сотрудника, полный штат.";
+        } catch (FirstNameOrLastNameIsEmptyException e) {
+            return "firstName or lastName is empty";
+        } catch (BadRequestException e) {
+            return "400BadRequestException";
+        }
     }
 
-    @GetMapping(path = "/departments/all")
-    public Set findEmploees(@RequestParam(value = "departmentId", required = false) Integer depId) {
-        return serv.findEmploees(depId);
+    @GetMapping("/del")
+    public String delPerson(@RequestParam("firstName") String firstName,
+                            @RequestParam("lastName") String lastName) {
+        try {
+            return serv.delEmploee(firstName, lastName);
+        } catch (EmployeeNotExistException e) {
+            return "Такого сотрудника в штате нет.";
+        }
+    }
+
+    @GetMapping("/find")
+    public String findPerson(@RequestParam("firstName") String firstName,
+                             @RequestParam("lastName") String lastName) {
+        try {
+            return serv.findEmploee(firstName, lastName);
+        } catch (EmployeeNotExistException e) {
+            return "Такого сотрудника в штате нет.";
+        }
+    }
+
+    @GetMapping("/list")
+    public Map listEmploee() {
+        return serv.listOfEmploee();
     }
 }
